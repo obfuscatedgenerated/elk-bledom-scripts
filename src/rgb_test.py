@@ -31,6 +31,8 @@ async def main():
         print("Connected to device")
         
         device = await BleLedDevice.new(client)
+        await device.power_on()
+        
         await device.set_color(255, 0, 0)
         await asyncio.sleep(1)
         await device.set_color(0, 255, 0)

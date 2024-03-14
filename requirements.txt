@@ -1,2 +1,3 @@
 bledom==0.0.9
 python-dotenv>=1.0.1
+pillow>=10.2.0
