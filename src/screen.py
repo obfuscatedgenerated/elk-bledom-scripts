@@ -3,7 +3,8 @@ import asyncio
 from bledom.device import BleLedDevice
 from bleak import BleakScanner, BleakClient
 
-from PIL import ImageGrab
+from PIL import Image
+from mss import mss
 
 from dotenv import load_dotenv
 from os import getenv
@@ -13,10 +14,10 @@ load_dotenv()
 TARGET_DEVICE = getenv("TARGET_DEVICE")
 
 # the number of steps to take to get to the new color. more = smoother but slower
-CHANGE_STEPS = 50
+CHANGE_STEPS = 100
 
 # the time for each step in the color change
-CHANGE_RATE = 0.005
+CHANGE_RATE = 0.001
 
 # the time between each screen capture
 UPDATE_RATE = 0.1
@@ -25,7 +26,10 @@ UPDATE_RATE = 0.1
 INIT_COLOR = (0, 0, 0)
 
 # the resolution of the screen capture. bigger = slower but more accurate average color
-RESOLUTION = (16, 16)
+RESOLUTION = (32, 32)
+
+# the monitor index to capture, starting from 1. -1 for all monitors
+MONITOR_INDEX = 1
 
 async def scan_routine():
     print ("Scanning for devices...")
@@ -73,30 +77,30 @@ async def screen_task():
     global target_color
 
     while True:
-        im = ImageGrab.grab()
+        with mss() as sct:
+            grab = sct.grab(sct.monitors[MONITOR_INDEX])
+            im = Image.frombytes("RGB", grab.size, grab.bgra, "raw", "BGRX")
 
-        im = im.resize(RESOLUTION)
-        im = im.convert("RGB")
+            im = im.resize(RESOLUTION)
+            pixels = list(im.getdata())
 
-        pixels = list(im.getdata())
-        
-        # get the average color of the screen
-        r = 0
-        g = 0
-        b = 0
+            # get the average color of the screen
+            r = 0
+            g = 0
+            b = 0
 
-        for pixel in pixels:
-            r += pixel[0]
-            g += pixel[1]
-            b += pixel[2]
-        
-        r = int(r / len(pixels))
-        g = int(g / len(pixels))
-        b = int(b / len(pixels))
+            for pixel in pixels:
+                r += pixel[0]
+                g += pixel[1]
+                b += pixel[2]
 
-        target_color = (r, g, b)
+            r = int(r / len(pixels))
+            g = int(g / len(pixels))
+            b = int(b / len(pixels))
 
-        await asyncio.sleep(UPDATE_RATE)
+            target_color = (r, g, b)
+
+            await asyncio.sleep(UPDATE_RATE)
 
 async def main():
     print("Connecting to device...")
