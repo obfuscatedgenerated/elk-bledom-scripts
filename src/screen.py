@@ -16,20 +16,20 @@ TARGET_DEVICE = getenv("TARGET_DEVICE")
 # the required change in distance between the current color and the target color to trigger an update
 CHANGE_THRESHOLD = 5
 
-# the number of steps to take to get to the new color. more = smoother but slower
-CHANGE_STEPS = 100
+# the number of steps to take to get to the new color. more = smoother but slower. not much advantage to going over 255 TODO smoothing curves
+CHANGE_STEPS = 125
 
-# the time for each step in the color change
-CHANGE_RATE = 0.001
+# the time for each step in the color change. too low may not work
+CHANGE_RATE = 0.0001
 
-# the time between each screen capture
-UPDATE_RATE = 0.05
+# the time between each screen capture. too low may not work
+UPDATE_RATE = 0.0015
 
 # the initial color of the LED
 INIT_COLOR = (0, 0, 0)
 
-# the resolution of the screen capture. bigger = slower but more accurate average color
-RESOLUTION = (32, 32)
+# the resolution of the screen capture. bigger = slower/more intensive but more accurate average color
+RESOLUTION = (64, 64)
 
 # the monitor index to capture, starting from 1. -1 for all monitors
 MONITOR_INDEX = 1
@@ -72,11 +72,12 @@ async def color_task(device):
         new_g = current_color[1] + dg / CHANGE_STEPS
         new_b = current_color[2] + db / CHANGE_STEPS
 
-        current_color = (int(new_r), int(new_g), int(new_b))
+        current_color = (new_r, new_g, new_b)
+        rounded_color = (int(new_r), int(new_g), int(new_b))
 
         # TODO: implement threshold. distance calc is weird
 
-        await device.set_color(*current_color) # TODO run without awaiting, means we can just skip a step if there is latency
+        await device.set_color(*rounded_color) # TODO run without awaiting, means we can just skip a step if there is latency
 
 async def screen_task():
     global target_color
@@ -124,3 +125,5 @@ async def main():
         await asyncio.gather(color_task(device), screen_task())
 
 asyncio.run(main())
+
+# TODO: optionally prefer edges of screen
