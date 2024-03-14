@@ -23,7 +23,7 @@ CHANGE_STEPS = 100
 CHANGE_RATE = 0.001
 
 # the time between each screen capture
-UPDATE_RATE = 0.1
+UPDATE_RATE = 0.05
 
 # the initial color of the LED
 INIT_COLOR = (0, 0, 0)
