@@ -24,6 +24,9 @@ UPDATE_RATE = 0.1
 # the initial color of the LED
 INIT_COLOR = (0, 0, 0)
 
+# the resolution of the screen capture. bigger = slower but more accurate average color
+RESOLUTION = (16, 16)
+
 async def scan_routine():
     print ("Scanning for devices...")
     devices = await BleakScanner.discover()
@@ -72,7 +75,7 @@ async def screen_task():
     while True:
         im = ImageGrab.grab()
 
-        im = im.resize((16, 16))
+        im = im.resize(RESOLUTION)
         im = im.convert("RGB")
 
         pixels = list(im.getdata())
