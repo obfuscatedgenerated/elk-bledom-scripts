@@ -22,6 +22,8 @@ CHANGE_STEPS = 125
 # the time for each step in the color change
 CHANGE_RATE = 0.00001
 
+# TODO proper way to disable fading
+
 # the time between each screen capture
 UPDATE_RATE = 0.0015
 
