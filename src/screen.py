@@ -19,10 +19,10 @@ CHANGE_THRESHOLD = 5
 # the number of steps to take to get to the new color. more = smoother but slower. not much advantage to going over 255 TODO smoothing curves
 CHANGE_STEPS = 125
 
-# the time for each step in the color change. too low may not work
-CHANGE_RATE = 0.0001
+# the time for each step in the color change
+CHANGE_RATE = 0.00001
 
-# the time between each screen capture. too low may not work
+# the time between each screen capture
 UPDATE_RATE = 0.0015
 
 # the initial color of the LED
@@ -77,7 +77,7 @@ async def color_task(device):
 
         # TODO: implement threshold. distance calc is weird
 
-        await device.set_color(*rounded_color) # TODO run without awaiting, means we can just skip a step if there is latency
+        asyncio.create_task(device.set_color(*rounded_color)) # run as task (without awaiting), means we can just skip a step if there is latency
 
 async def screen_task():
     global target_color
