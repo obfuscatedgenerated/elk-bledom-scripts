@@ -13,6 +13,9 @@ load_dotenv()
 
 TARGET_DEVICE = getenv("TARGET_DEVICE")
 
+# the required change in distance between the current color and the target color to trigger an update
+CHANGE_THRESHOLD = 5
+
 # the number of steps to take to get to the new color. more = smoother but slower
 CHANGE_STEPS = 100
 
@@ -59,17 +62,19 @@ async def color_task(device):
     while True:
         await asyncio.sleep(CHANGE_RATE)
 
-        # get the distance between the current color and the target color
+        # get the delta between the current color and the target color
         dr = target_color[0] - current_color[0]
         dg = target_color[1] - current_color[1]
         db = target_color[2] - current_color[2]
 
-        # if the distance is 0, we're done
-        if dr == 0 and dg == 0 and db == 0:
-            continue
-
         # interpolate the color
-        current_color = (int(current_color[0] + dr / CHANGE_STEPS), int(current_color[1] + dg / CHANGE_STEPS), int(current_color[2] + db / CHANGE_STEPS))
+        new_r = current_color[0] + dr / CHANGE_STEPS
+        new_g = current_color[1] + dg / CHANGE_STEPS
+        new_b = current_color[2] + db / CHANGE_STEPS
+
+        current_color = (int(new_r), int(new_g), int(new_b))
+
+        # TODO: implement threshold. distance calc is weird
 
         await device.set_color(*current_color) # TODO run without awaiting, means we can just skip a step if there is latency
 
