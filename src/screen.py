@@ -168,3 +168,4 @@ asyncio.run(main())
 
 # TODO: optionally prefer edges of screen
 # TODO: gui for settings
+# TODO: argparse settings
